@@ -24,7 +24,7 @@ const collection = computed(() =>
         <img
           v-for="photo in collection.photos"
           :key="photo.url"
-          :src="imageUrl(photo, 1200)"
+          :src="imageUrl(photo)"
           :alt="photo.caption"
           loading="lazy"
           class="w-full rounded-lg"

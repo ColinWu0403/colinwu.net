@@ -1,10 +1,44 @@
+import { peru_1_2026 } from "./2026-peru-1";
+import { peru_2_2026 } from "./2026-peru-2";
+import { guatemala2026 } from "./2026-guatemala";
+import { washington2025 } from "./2025-washington";
+import { oregon2025 } from "./2025-oregon";
+import { tennessee2025 } from "./2025-tennessee";
 import { france2025 } from "./2025-france";
-// import new collections here as you add them, e.g.:
-// import { newYork2025 } from "./2025-new-york";
+import { italy2025 } from "./2025-italy";
+import { taiwan_1_2024 } from "./2024-taiwan-1";
+import { taiwan_2_2024 } from "./2024-taiwan-2";
+import { taiwan_3_2024 } from "./2024-taiwan-3";
+import { taiwan_4_2024 } from "./2024-taiwan-4";
+import { belize2024 } from "./2024-belize";
+import { nola2024 } from "./2024-nola";
+import { mexico2023 } from "./2023-mexico";
+import { panama2023 } from "./2023-panama";
+import { taiwan2019 } from "./2019-taiwan";
 
-const CLOUD_NAME = "p0y4sdwd";
+// Cloudflare bucket link
+const R2_BASE = "https://pub-0edcbecc6cb74c37b7dd824292db1182.r2.dev";
 
-const collections = [france2025 /*, newYork2025 */];
+// import collections
+const collections = [
+  peru_1_2026,
+  peru_2_2026,
+  guatemala2026,
+  washington2025,
+  oregon2025,
+  tennessee2025,
+  france2025,
+  italy2025,
+  taiwan_1_2024,
+  taiwan_2_2024,
+  taiwan_3_2024,
+  taiwan_4_2024,
+  nola2024,
+  mexico2023,
+  belize2024,
+  panama2023,
+  taiwan2019,
+];
 
 // Global chronological order (for prev/next navigation)
 export const orderedCollections = [...collections].sort(
@@ -33,8 +67,6 @@ export function highlightPhoto(collection) {
   return collection.photos.find((p) => p.highlight) || collection.photos[0];
 }
 
-// Takes a photo's stored URL and inserts a resize transform
-export function imageUrl(photo, width) {
-  const transform = width ? `w_${width},q_auto,f_auto` : "q_auto,f_auto";
-  return photo.url.replace("/upload/", `/upload/${transform}/`);
+export function imageUrl(photo) {
+  return `${R2_BASE}/${photo.url}`;
 }

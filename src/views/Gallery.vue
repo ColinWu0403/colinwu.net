@@ -1,15 +1,28 @@
 <!-- src/views/Gallery.vue -->
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, nextTick } from "vue";
 import { byYear, highlightPhoto, imageUrl } from "../constants/gallery";
 import { useHead } from "@vueuse/head";
 
 const years = byYear();
 const rowRefs = ref({});
 const loaded = reactive({});
+const scrollState = reactive({}); // { [year]: { canLeft: bool, canRight: bool } }
 
 function setRowRef(el, year) {
-  if (el) rowRefs.value[year] = el;
+  if (el) {
+    rowRefs.value[year] = el;
+    checkScroll(year);
+  }
+}
+
+function checkScroll(year) {
+  const row = rowRefs.value[year];
+  if (!row) return;
+  scrollState[year] = {
+    canLeft: row.scrollLeft > 4,
+    canRight: row.scrollLeft + row.clientWidth < row.scrollWidth - 4,
+  };
 }
 
 function scrollRight(year) {
@@ -17,9 +30,21 @@ function scrollRight(year) {
   if (row) row.scrollBy({ left: row.clientWidth * 0.8, behavior: "smooth" });
 }
 
-function markLoaded(slug) {
-  loaded[slug] = true;
+function scrollLeft(year) {
+  const row = rowRefs.value[year];
+  if (row) row.scrollBy({ left: -row.clientWidth * 0.8, behavior: "smooth" });
 }
+
+function markLoaded(slug, year) {
+  loaded[slug] = true;
+  nextTick(() => checkScroll(year));
+}
+
+onMounted(() => {
+  window.addEventListener("resize", () => {
+    years.forEach(([year]) => checkScroll(year));
+  });
+});
 
 const showHint = ref(false);
 const hintX = ref(0);
@@ -56,7 +81,7 @@ useHead({
       Gallery
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mb-8">
-      I am not a photographer. Everything captured on my Iphone 13.
+      I am not a photographer. Everything captured on my iPhone 13.
     </p>
 
     <div v-for="[year, yearCollections] in years" :key="year" class="mb-6">
@@ -67,6 +92,7 @@ useHead({
       <div class="relative">
         <div
           :ref="(el) => setRowRef(el, year)"
+          @scroll="checkScroll(year)"
           class="flex gap-4 overflow-x-auto pb-2 scroll-smooth"
         >
           <router-link
@@ -78,7 +104,7 @@ useHead({
             @mousemove="handleCardMove"
             @mouseleave="handleCardLeave"
           >
-            <!-- Skeleton: visible until this card's image fires @load -->
+            <!-- Skeleton is visible until this card's image fires @load -->
             <div
               v-if="!loaded[collection.slug]"
               class="absolute inset-0 animate-pulse bg-slate/50 dark:bg-darker_slate"
@@ -88,7 +114,7 @@ useHead({
               :src="imageUrl(highlightPhoto(collection))"
               :alt="highlightPhoto(collection).caption"
               loading="lazy"
-              @load="markLoaded(collection.slug)"
+              @load="markLoaded(collection.slug, year)"
               class="absolute inset-0 w-full h-full object-cover transition-all duration-500 grayscale-0 group-hover:grayscale group-hover:scale-105"
               :class="loaded[collection.slug] ? 'opacity-100' : 'opacity-0'"
             />
@@ -107,10 +133,20 @@ useHead({
           </router-link>
         </div>
 
-        <!-- Mobile-only scroll arrow -->
+        <!-- scroll arrows, shown only when there's actually more to scroll to -->
         <button
+          v-if="scrollState[year]?.canLeft"
+          @click="scrollLeft(year)"
+          class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 dark:bg-darker_slate/90 shadow-md text-primary dark:text-white"
+          aria-label="Scroll back"
+        >
+          <i class="fas fa-chevron-left text-sm"></i>
+        </button>
+
+        <button
+          v-if="scrollState[year]?.canRight"
           @click="scrollRight(year)"
-          class="md:hidden absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 dark:bg-darker_slate/90 shadow-md text-primary dark:text-white"
+          class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 dark:bg-darker_slate/90 shadow-md text-primary dark:text-white"
           aria-label="Scroll to see more"
         >
           <i class="fas fa-chevron-right text-sm"></i>
@@ -124,7 +160,7 @@ useHead({
         class="fixed z-50 pointer-events-none px-3 py-1 rounded-sm border border-magenta/60 dark:border-tertiary/60 bg-light dark:bg-darker_slate text-xs font-semibold text-magenta dark:text-tertiary shadow-md whitespace-nowrap transition-opacity duration-150"
         :style="{ left: `${hintX}px`, top: `${hintY}px` }"
       >
-        View Gallery →
+        <i class="fas fa-circle-info"></i> View Gallery
       </div>
     </Teleport>
   </div>

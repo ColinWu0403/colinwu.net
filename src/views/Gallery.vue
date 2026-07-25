@@ -1,11 +1,12 @@
 <!-- src/views/Gallery.vue -->
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { byYear, highlightPhoto, imageUrl } from "../constants/gallery";
 import { useHead } from "@vueuse/head";
 
 const years = byYear();
 const rowRefs = ref({});
+const loaded = reactive({});
 
 function setRowRef(el, year) {
   if (el) rowRefs.value[year] = el;
@@ -16,7 +17,10 @@ function scrollRight(year) {
   if (row) row.scrollBy({ left: row.clientWidth * 0.8, behavior: "smooth" });
 }
 
-// Cursor-following "View Gallery" hint
+function markLoaded(slug) {
+  loaded[slug] = true;
+}
+
 const showHint = ref(false);
 const hintX = ref(0);
 const hintY = ref(0);
@@ -51,12 +55,12 @@ useHead({
     >
       Gallery
     </h1>
-    <p class="text-gray-600 dark:text-gray-400 mb-10">
+    <p class="text-gray-600 dark:text-gray-400 mb-8">
       I am not a photographer. Everything captured on my Iphone 13.
     </p>
 
-    <div v-for="[year, yearCollections] in years" :key="year" class="mb-14">
-      <h2 class="text-xl font-bold text-primary dark:text-white mb-4">
+    <div v-for="[year, yearCollections] in years" :key="year" class="mb-6">
+      <h2 class="text-2xl font-bold text-primary dark:text-tertiary mb-4">
         {{ year }}
       </h2>
 
@@ -69,16 +73,24 @@ useHead({
             v-for="collection in yearCollections"
             :key="collection.slug"
             :to="`/gallery/${collection.year}/${collection.slug}`"
-            class="flex-shrink-0 w-48 md:w-56 group relative overflow-hidden rounded-sm aspect-[3/4]"
+            class="flex-shrink-0 w-48 md:w-56 group relative overflow-hidden rounded-sm aspect-[3/4] bg-gray-200 dark:bg-white/5"
             @mouseenter="handleCardEnter"
             @mousemove="handleCardMove"
             @mouseleave="handleCardLeave"
           >
+            <!-- Skeleton: visible until this card's image fires @load -->
+            <div
+              v-if="!loaded[collection.slug]"
+              class="absolute inset-0 animate-pulse bg-slate/50 dark:bg-darker_slate"
+            ></div>
+
             <img
               :src="imageUrl(highlightPhoto(collection))"
               :alt="highlightPhoto(collection).caption"
               loading="lazy"
+              @load="markLoaded(collection.slug)"
               class="absolute inset-0 w-full h-full object-cover transition-all duration-500 grayscale-0 group-hover:grayscale group-hover:scale-105"
+              :class="loaded[collection.slug] ? 'opacity-100' : 'opacity-0'"
             />
 
             <div

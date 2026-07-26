@@ -167,7 +167,7 @@
         <img
           src="../assets/oreo.jpg"
           alt="Colin Wu"
-          class="w-44 h-44 md:w-52 md:h-52 rounded-full object-cover border-2 border-magenta/30 dark:border-tertiary/30"
+          class="w-44 h-44 md:w-52 md:h-52 rounded-full object-cover border-2 border-magenta/50 dark:border-tertiary/50"
         />
       </div>
     </div>

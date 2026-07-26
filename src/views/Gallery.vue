@@ -14,15 +14,18 @@ const scrollState = reactive({});
 let observer = null;
 
 function setRowRef(el, year) {
-  if (el) {
-    rowRefs.value[year] = el;
-    checkScroll(year);
-  }
+  if (!el || rowRefs.value[year] === el) return;
+  rowRefs.value[year] = el;
+  checkScroll(year);
 }
 
 function setCardRef(el, slug) {
   if (!el) return;
   const node = el.$el || el;
+
+  // If this exact DOM node is already tracked, skip re-observing it.
+  if (cardRefs.value[slug] === node) return;
+
   cardRefs.value[slug] = node;
   if (observer) observer.observe(node);
 }

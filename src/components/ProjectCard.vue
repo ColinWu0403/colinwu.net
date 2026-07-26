@@ -42,6 +42,9 @@
         class="text-blueish/50 dark:text-slate hover:text-magenta dark:hover:text-tertiary mx-2 transition"
         :class="compact ? 'text-lg' : 'text-2xl'"
         aria-label="Source Code on GitHub"
+        @mouseenter="(e) => tooltip.show(e, 'GitHub')"
+        @mousemove="(e) => tooltip.move(e)"
+        @mouseleave="tooltip.hide"
       >
         <i class="fab fa-github"></i>
       </a>
@@ -51,15 +54,22 @@
         class="text-blueish/50 dark:text-slate hover:text-magenta dark:hover:text-tertiary mx-2 transition"
         :class="compact ? 'text-lg' : 'text-2xl'"
         aria-label="Demo Link"
+        @mouseenter="(e) => tooltip.show(e, 'Demo')"
+        @mousemove="(e) => tooltip.move(e)"
+        @mouseleave="tooltip.hide()"
       >
         <i class="fas fa-external-link-alt"></i>
       </a>
     </div>
+    <CursorTooltip ref="tooltip" />
   </div>
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, ref } from "vue";
+import CursorTooltip from "./CursorTooltip.vue";
+
+const tooltip = ref(null);
 
 defineProps({
   dateRange: String,

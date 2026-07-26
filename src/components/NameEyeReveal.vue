@@ -8,6 +8,7 @@ import {
   onBeforeUnmount,
   nextTick,
 } from "vue";
+import CursorTooltip from "./CursorTooltip.vue";
 
 const props = defineProps({
   name: { type: String, required: true },
@@ -36,26 +37,18 @@ const visibleIndices = computed(() => {
   return Array.from({ length: count }, (_, i) => i);
 });
 
-const showTooltip = ref(false);
-const tooltipX = ref(0);
-const tooltipY = ref(0);
-const TOOLTIP_OFFSET_X = 14;
-const TOOLTIP_OFFSET_Y = 18;
+const tooltip = ref(null);
 
 function handleMouseEnter(e) {
   if (!initialTypeDone.value) return;
-  showTooltip.value = true;
-  tooltipX.value = e.clientX + TOOLTIP_OFFSET_X;
-  tooltipY.value = e.clientY + TOOLTIP_OFFSET_Y;
+  tooltip.value.show(e, "About Me");
   runAnimation();
 }
 function handleMouseMove(e) {
-  if (!showTooltip.value) return;
-  tooltipX.value = e.clientX + TOOLTIP_OFFSET_X;
-  tooltipY.value = e.clientY + TOOLTIP_OFFSET_Y;
+  tooltip.value.move(e);
 }
 function handleMouseLeave() {
-  showTooltip.value = false;
+  tooltip.value.hide();
 }
 
 let timeouts = [];
@@ -221,7 +214,7 @@ onMounted(() => {
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(typeInName);
   } else {
-    typeInName(); // fallback for older browsers without the Font Loading API
+    typeInName();
   }
 });
 onBeforeUnmount(clearAllTimeouts);
@@ -248,15 +241,7 @@ onBeforeUnmount(clearAllTimeouts);
     </span>
   </router-link>
 
-  <Teleport to="body">
-    <div
-      v-if="showTooltip"
-      class="fixed z-50 pointer-events-none px-3 py-1 rounded-sm border border-magenta/60 dark:border-tertiary/60 bg-light dark:bg-darker_slate text-xs font-semibold text-magenta dark:text-tertiary shadow-md whitespace-nowrap transition-opacity duration-150"
-      :style="{ left: `${tooltipX}px`, top: `${tooltipY}px` }"
-    >
-      <i class="fas fa-circle-info"></i> About Me
-    </div>
-  </Teleport>
+  <CursorTooltip ref="tooltip" />
 </template>
 
 <style scoped>

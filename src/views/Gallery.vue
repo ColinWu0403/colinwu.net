@@ -3,6 +3,9 @@
 import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { byYear, highlightPhoto, imageUrl } from "../constants/gallery";
 import { useHead } from "@vueuse/head";
+import CursorTooltip from "../components/CursorTooltip.vue";
+
+const tooltip = ref(null);
 
 const years = byYear();
 const rowRefs = ref({});
@@ -77,25 +80,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => observer?.disconnect());
 
-const showHint = ref(false);
-const hintX = ref(0);
-const hintY = ref(0);
-const HINT_OFFSET_X = 16;
-const HINT_OFFSET_Y = 20;
-
-function handleCardEnter(e) {
-  showHint.value = true;
-  hintX.value = e.clientX + HINT_OFFSET_X;
-  hintY.value = e.clientY + HINT_OFFSET_Y;
-}
-function handleCardMove(e) {
-  hintX.value = e.clientX + HINT_OFFSET_X;
-  hintY.value = e.clientY + HINT_OFFSET_Y;
-}
-function handleCardLeave() {
-  showHint.value = false;
-}
-
 useHead({
   meta: [
     { name: "description", content: "Photo gallery." },
@@ -133,9 +117,9 @@ useHead({
             :data-slug="collection.slug"
             :to="`/gallery/${collection.year}/${collection.slug}`"
             class="flex-shrink-0 w-48 md:w-56 group relative overflow-hidden rounded-sm aspect-[3/4] bg-gray-200 dark:bg-white/5"
-            @mouseenter="handleCardEnter"
-            @mousemove="handleCardMove"
-            @mouseleave="handleCardLeave"
+            @mouseenter="(e) => tooltip.show(e, 'View Gallery')"
+            @mousemove="(e) => tooltip.move(e)"
+            @mouseleave="tooltip.hide()"
           >
             <!-- Skeleton is visible until this card's image fires @load -->
             <div
@@ -187,14 +171,6 @@ useHead({
       </div>
     </div>
 
-    <Teleport to="body">
-      <div
-        v-if="showHint"
-        class="fixed z-50 pointer-events-none px-3 py-1 rounded-sm border border-magenta/60 dark:border-tertiary/60 bg-light dark:bg-darker_slate text-xs font-semibold text-magenta dark:text-tertiary shadow-md whitespace-nowrap transition-opacity duration-150"
-        :style="{ left: `${hintX}px`, top: `${hintY}px` }"
-      >
-        <i class="fas fa-circle-info"></i> View Gallery
-      </div>
-    </Teleport>
+    <CursorTooltip ref="tooltip" />
   </div>
 </template>

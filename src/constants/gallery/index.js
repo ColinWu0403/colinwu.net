@@ -17,7 +17,7 @@ import { panama2023 } from "./2023-panama";
 import { taiwan2019 } from "./2019-taiwan";
 
 // Cloudflare bucket link
-const R2_BASE = "https://pub-0edcbecc6cb74c37b7dd824292db1182.r2.dev";
+const IMAGE_DOMAIN = "images.colinwu.net";
 
 // import collections
 const collections = [
@@ -67,6 +67,11 @@ export function highlightPhoto(collection) {
   return collection.photos.find((p) => p.highlight) || collection.photos[0];
 }
 
-export function imageUrl(photo) {
-  return `${R2_BASE}/${photo.url}`;
+//  and return
+export function imageUrl(photo, width) {
+  const path = photo.url;
+  if (!width) return `https://${IMAGE_DOMAIN}/${path}`;
+
+  const transform = `width=${width},quality=90,format=auto`;
+  return `https://${IMAGE_DOMAIN}/cdn-cgi/image/${transform}/${path}`;
 }

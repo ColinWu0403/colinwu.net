@@ -8,6 +8,8 @@ import Research from "../views/Research.vue";
 import CV from "../views/CV.vue";
 import Blog from "../views/Blog.vue";
 import BlogPost from "../views/BlogPost.vue";
+import Gallery from "../views/Gallery.vue";
+import GalleryPost from "../views/GalleryPost.vue";
 
 const routes = [
   {
@@ -76,6 +78,22 @@ const routes = [
     path: "/about",
     name: "About",
     component: NotFound,
+    meta: {
+      title: "About Me",
+    },
+  },
+  {
+    path: "/gallery",
+    name: "Gallery",
+    component: Gallery,
+    meta: {
+      title: "Gallery",
+    },
+  },
+  {
+    path: "/gallery/:year/:slug",
+    name: "gallery-post",
+    component: GalleryPost,
     meta: {
       title: "About Me",
     },

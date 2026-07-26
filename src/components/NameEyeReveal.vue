@@ -254,7 +254,7 @@ onBeforeUnmount(clearAllTimeouts);
       class="fixed z-50 pointer-events-none px-3 py-1 rounded-sm border border-magenta/60 dark:border-tertiary/60 bg-light dark:bg-darker_slate text-xs font-semibold text-magenta dark:text-tertiary shadow-md whitespace-nowrap transition-opacity duration-150"
       :style="{ left: `${tooltipX}px`, top: `${tooltipY}px` }"
     >
-      About Me
+      <i class="fas fa-circle-info"></i> About Me
     </div>
   </Teleport>
 </template>

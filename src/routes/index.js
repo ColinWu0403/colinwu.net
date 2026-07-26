@@ -10,6 +10,7 @@ import Blog from "../views/Blog.vue";
 import BlogPost from "../views/BlogPost.vue";
 import Gallery from "../views/Gallery.vue";
 import GalleryPost from "../views/GalleryPost.vue";
+import About from "../views/About.vue";
 
 const routes = [
   {
@@ -77,7 +78,7 @@ const routes = [
   {
     path: "/about",
     name: "About",
-    component: NotFound,
+    component: About,
     meta: {
       title: "About Me",
     },
@@ -95,7 +96,7 @@ const routes = [
     name: "gallery-post",
     component: GalleryPost,
     meta: {
-      title: "About Me",
+      title: "Gallery",
     },
   },
   // {

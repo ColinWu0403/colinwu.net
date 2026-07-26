@@ -1,4 +1,4 @@
-<!-- src/views/Projects.vue -->
+<!-- src/views/Music.vue -->
 <template>
   <div class="mx-auto">
     <!-- <h1

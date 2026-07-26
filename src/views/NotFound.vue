@@ -1,4 +1,4 @@
-<!-- src/views/Projects.vue -->
+<!-- src/views/NotFound.vue -->
 <template>
   <div class="mx-auto">
     <div

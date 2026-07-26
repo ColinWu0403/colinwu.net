@@ -67,11 +67,11 @@ export function highlightPhoto(collection) {
   return collection.photos.find((p) => p.highlight) || collection.photos[0];
 }
 
-//  and return
-export function imageUrl(photo, width) {
+// return image
+export function imageUrl(photo, width, quality) {
   const path = photo.url;
-  if (!width) return `https://${IMAGE_DOMAIN}/${path}`;
+  if (!width && quality) return `https://${IMAGE_DOMAIN}/${path}`;
 
-  const transform = `width=${width},quality=90,format=auto`;
+  const transform = `width=${width},quality=${quality},format=auto`;
   return `https://${IMAGE_DOMAIN}/cdn-cgi/image/${transform}/${path}`;
 }

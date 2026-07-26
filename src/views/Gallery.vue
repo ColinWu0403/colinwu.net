@@ -111,7 +111,7 @@ useHead({
             ></div>
 
             <img
-              :src="imageUrl(highlightPhoto(collection), 600)"
+              :src="imageUrl(highlightPhoto(collection), 600, 80)"
               :alt="highlightPhoto(collection).caption"
               loading="lazy"
               @load="markLoaded(collection.slug, year)"

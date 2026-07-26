@@ -1,19 +1,30 @@
 <!-- src/views/Gallery.vue -->
 <script setup>
-import { ref, reactive, onMounted, nextTick } from "vue";
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { byYear, highlightPhoto, imageUrl } from "../constants/gallery";
 import { useHead } from "@vueuse/head";
 
 const years = byYear();
 const rowRefs = ref({});
+const cardRefs = ref({}); // one entry per collection slug
 const loaded = reactive({});
-const scrollState = reactive({}); // { [year]: { canLeft: bool, canRight: bool } }
+const visible = reactive({}); // becomes true once a card scrolls near view
+const scrollState = reactive({});
+
+let observer = null;
 
 function setRowRef(el, year) {
   if (el) {
     rowRefs.value[year] = el;
     checkScroll(year);
   }
+}
+
+function setCardRef(el, slug) {
+  if (!el) return;
+  const node = el.$el || el;
+  cardRefs.value[slug] = node;
+  if (observer) observer.observe(node);
 }
 
 function checkScroll(year) {
@@ -41,10 +52,27 @@ function markLoaded(slug, year) {
 }
 
 onMounted(() => {
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const slug = entry.target.dataset.slug;
+          visible[slug] = true;
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { rootMargin: "200px" },
+  );
+
+  Object.values(cardRefs.value).forEach((node) => observer.observe(node));
+
   window.addEventListener("resize", () => {
     years.forEach(([year]) => checkScroll(year));
   });
 });
+
+onBeforeUnmount(() => observer?.disconnect());
 
 const showHint = ref(false);
 const hintX = ref(0);
@@ -98,6 +126,8 @@ useHead({
           <router-link
             v-for="collection in yearCollections"
             :key="collection.slug"
+            :ref="(el) => setCardRef(el, collection.slug)"
+            :data-slug="collection.slug"
             :to="`/gallery/${collection.year}/${collection.slug}`"
             class="flex-shrink-0 w-48 md:w-56 group relative overflow-hidden rounded-sm aspect-[3/4] bg-gray-200 dark:bg-white/5"
             @mouseenter="handleCardEnter"
@@ -111,9 +141,9 @@ useHead({
             ></div>
 
             <img
+              v-if="visible[collection.slug]"
               :src="imageUrl(highlightPhoto(collection), 600, 80)"
               :alt="highlightPhoto(collection).caption"
-              loading="lazy"
               @load="markLoaded(collection.slug, year)"
               class="absolute inset-0 w-full h-full object-cover transition-all duration-500 grayscale-0 group-hover:grayscale group-hover:scale-105"
               :class="loaded[collection.slug] ? 'opacity-100' : 'opacity-0'"

@@ -44,6 +44,20 @@ export const projects = [
     demoLink: "https://github.com/Purdue-ACM-SIGAPP/boilerbuzz-frontend-2526",
   },
   {
+    title: "AI for Disaster Response",
+    description:
+      "Automated disaster-response methods using Random Forest and MLP image-classification models to assess damage severity from social-media disaster images",
+    technologies: [
+      { name: "Scikit-learn", color: "tertiary" },
+      { name: "Pytorch", color: "violet" },
+      { name: "Transformers", color: "orange" },
+      { name: "Pandas", color: "red" },
+      { name: "Python", color: "magenta" },
+    ],
+    githubLink: "https://github.com/lfossum/VIP-AI-in-Disaster-Response",
+    demoLink: "https://github.com/lfossum/VIP-AI-in-Disaster-Response",
+  },
+  {
     dateRange: "Feb 2025 - Present",
     title: "StonkSensei",
     description:

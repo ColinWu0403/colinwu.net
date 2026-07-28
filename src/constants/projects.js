@@ -207,21 +207,6 @@ export const projects = [
       "https://raw.githubusercontent.com/Purdue-ACM-SIGAPP/mixtape-frontend/dev/mixtape-rn-app-v0/assets/mixtape.png",
   },
   {
-    dateRange: "Oct 2023 - Feb 2024",
-    title: "Ascend Purdue Website",
-    description:
-      "Ascend Purdue Business Club's official website, developed using React and TypeScript. AscendPurdue.com is fully responsive and has a mobile-friendly interface used by over 100 members of the club.",
-    technologies: [
-      { name: "React", color: "light_blue" },
-      { name: "TypeScript", color: "blueish" },
-      { name: "Tailwind CSS", color: "secondary" },
-      { name: "Vercel", color: "lime" },
-    ],
-    githubLink: "https://github.com/ColinWu0403/AscendWebsiteDev",
-    demoLink: "https://www.ascendpurdue.com/",
-    imageSrc: "./AscendPurdue.jpg",
-  },
-  {
     dateRange: "Jul 2024 - Present",
     title: "Portfolio Website",
     description:

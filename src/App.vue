@@ -10,14 +10,18 @@ const route = useRoute();
 <template>
   <div
     id="app"
-    class="flex flex-col min-h-screen bg-light dark:bg-primary text-primary dark:text-white transition-colors duration-300"
+    class="flex flex-col bg-light dark:bg-primary text-primary dark:text-white transition-colors duration-300"
+    :class="route.meta.noScroll ? 'h-screen overflow-hidden' : 'min-h-screen'"
   >
     <!-- Main layout components -->
     <Navbar />
-    <main class="flex-grow">
+    <main
+      class="flex-grow min-h-0"
+      :class="route.meta.noScroll ? 'flex flex-col overflow-hidden' : ''"
+    >
       <router-view />
     </main>
-    <Footer v-if="!route.meta.hideFooter" />
+    <Footer v-if="!route.meta.noScroll" />
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <!-- src/views/GalleryPost.vue -->
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
 import {
   findCollection,
@@ -33,13 +33,53 @@ const nextCollection = computed(() =>
     : null,
 );
 
+// Desktop
 const topBlurRef = ref(null);
+const bottomBlurRef = ref(null);
 
 function handleScroll(e) {
-  if (!topBlurRef.value) return;
-  const opacity = Math.min(e.target.scrollTop / 100, 1);
-  topBlurRef.value.style.opacity = opacity;
+  const el = e.target;
+  if (topBlurRef.value) {
+    topBlurRef.value.style.opacity = Math.min(el.scrollTop / 100, 1);
+  }
+  if (bottomBlurRef.value) {
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    bottomBlurRef.value.style.opacity = Math.min(distanceFromBottom / 100, 1);
+  }
 }
+
+// Mobile
+const mobileTopBlurRef = ref(null);
+const mobileBottomBlurRef = ref(null);
+const mobileImagesRef = ref(null);
+
+function handleWindowScroll() {
+  const wrapper = mobileImagesRef.value;
+  if (!wrapper) return;
+  const rect = wrapper.getBoundingClientRect();
+
+  // Fade in once the top of the image list has scrolled above the viewport top
+  if (mobileTopBlurRef.value) {
+    const scrolledPast = Math.max(0, -rect.top);
+    mobileTopBlurRef.value.style.opacity = Math.min(scrolledPast / 100, 1);
+  }
+
+  // Fade out as the bottom of the image list approaches the viewport bottom
+  if (mobileBottomBlurRef.value) {
+    const distanceFromBottom = rect.bottom - window.innerHeight;
+    const opacity =
+      distanceFromBottom > 100 ? 1 : Math.max(0, distanceFromBottom / 100);
+    mobileBottomBlurRef.value.style.opacity = opacity;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("scroll", handleWindowScroll, { passive: true });
+  handleWindowScroll();
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", handleWindowScroll);
+});
 </script>
 
 <template>
@@ -48,7 +88,7 @@ function handleScroll(e) {
     class="md:h-full md:overflow-hidden flex flex-col md:flex-row w-full px-6 md:pl-16 md:pr-8 py-6 md:py-8 gap-10"
   >
     <!-- Left column -->
-    <div class="md:w-64 flex-shrink-0 flex flex-col items-start">
+    <div class="md:w-64 md:h-full flex-shrink-0 flex flex-col items-start">
       <h1 class="text-3xl font-bold text-primary dark:text-white mb-2">
         {{ collection.title }}
       </h1>
@@ -59,7 +99,26 @@ function handleScroll(e) {
         {{ collection.description }}
       </p>
 
-      <div class="hidden md:flex items-center gap-4 mb-4">
+      <!-- Mobile -->
+      <div class="flex md:hidden items-center gap-4 mb-6 w-full">
+        <router-link
+          v-if="prevCollection"
+          :to="`/gallery/${prevCollection.year}/${prevCollection.slug}`"
+          class="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400"
+        >
+          <i class="fas fa-arrow-left text-xs"></i> Prev
+        </router-link>
+        <router-link
+          v-if="nextCollection"
+          :to="`/gallery/${nextCollection.year}/${nextCollection.slug}`"
+          class="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400"
+        >
+          Next <i class="fas fa-arrow-right text-xs"></i>
+        </router-link>
+      </div>
+
+      <!-- Desktop prev/next -->
+      <div class="hidden md:flex md:flex-row items-center gap-4">
         <router-link
           v-if="prevCollection"
           :to="`/gallery/${prevCollection.year}/${prevCollection.slug}`"
@@ -76,20 +135,23 @@ function handleScroll(e) {
         </router-link>
       </div>
 
-      <router-link
-        to="/gallery"
-        class="link-underline inline-block text-blueish dark:text-secondary hover:text-magenta dark:hover:text-tertiary text-sm"
-      >
-        &larr; Back to Gallery
-      </router-link>
+      <!-- Desktop back-to-gallery: pinned to the bottom of this column -->
+      <div class="hidden md:inline-block mt-auto">
+        <router-link
+          to="/gallery"
+          class="link-underline text-blueish dark:text-secondary hover:text-magenta dark:hover:text-tertiary text-sm"
+        >
+          Back to Gallery
+        </router-link>
+      </div>
     </div>
 
     <!-- Right column -->
-    <div class="relative md:w-[560px] mx-auto md:h-full">
-      <!-- Top blur bar: fades in on scroll, matching their scroll-linked opacity -->
+    <div class="relative md:w-[560px] mx-auto md:h-full w-full">
+      <!-- Desktop top blur -->
       <div
         ref="topBlurRef"
-        class="hidden md:block pointer-events-none absolute inset-x-0 top-0 h-24 z-10 opacity-0"
+        class="hidden md:block pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[720px] h-32 z-10 opacity-0"
       >
         <div
           class="absolute inset-0"
@@ -145,15 +207,75 @@ function handleScroll(e) {
         ></div>
       </div>
 
+      <!-- Mobile top blur: fixed to viewport, since page (not a container) scrolls -->
       <div
-        ref="scrollContainerRef"
+        ref="mobileTopBlurRef"
+        class="md:hidden pointer-events-none fixed top-0 inset-x-0 h-24 z-10 opacity-0"
+      >
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to bottom, black 0%, transparent 60%);
+            -webkit-mask-image: linear-gradient(
+              to bottom,
+              black 0%,
+              transparent 60%
+            );
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+          "
+        ></div>
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to bottom, black 0%, transparent 40%);
+            -webkit-mask-image: linear-gradient(
+              to bottom,
+              black 0%,
+              transparent 40%
+            );
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+          "
+        ></div>
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to bottom, black 0%, transparent 25%);
+            -webkit-mask-image: linear-gradient(
+              to bottom,
+              black 0%,
+              transparent 25%
+            );
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+          "
+        ></div>
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to bottom, black 0%, transparent 15%);
+            -webkit-mask-image: linear-gradient(
+              to bottom,
+              black 0%,
+              transparent 15%
+            );
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+          "
+        ></div>
+      </div>
+
+      <!-- Images -->
+      <div
+        ref="mobileImagesRef"
         class="no-scrollbar md:h-full md:overflow-y-auto space-y-2"
         @scroll="handleScroll"
       >
         <div
           v-for="photo in collection.photos"
           :key="photo.url"
-          class="group relative overflow-hidden rounded-sm"
+          class="group relative overflow-hidden rounded-xs"
           @mouseenter="(e) => tooltip.show(e, photo.caption)"
           @mousemove="(e) => tooltip.move(e)"
           @mouseleave="() => tooltip.hide()"
@@ -170,9 +292,69 @@ function handleScroll(e) {
         </div>
       </div>
 
-      <!-- Bottom blur bar: always visible, matching their reference exactly -->
+      <!-- Desktop bottom blur -->
       <div
-        class="hidden md:block pointer-events-none absolute inset-x-0 bottom-0 h-24 z-10"
+        ref="bottomBlurRef"
+        class="hidden md:block pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[720px] h-32 z-10"
+      >
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to top, black 0%, transparent 60%);
+            -webkit-mask-image: linear-gradient(
+              to top,
+              black 0%,
+              transparent 60%
+            );
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+          "
+        ></div>
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to top, black 0%, transparent 40%);
+            -webkit-mask-image: linear-gradient(
+              to top,
+              black 0%,
+              transparent 40%
+            );
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+          "
+        ></div>
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to top, black 0%, transparent 25%);
+            -webkit-mask-image: linear-gradient(
+              to top,
+              black 0%,
+              transparent 25%
+            );
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+          "
+        ></div>
+        <div
+          class="absolute inset-0"
+          style="
+            mask-image: linear-gradient(to top, black 0%, transparent 15%);
+            -webkit-mask-image: linear-gradient(
+              to top,
+              black 0%,
+              transparent 15%
+            );
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+          "
+        ></div>
+      </div>
+
+      <!-- Mobile bottom blur -->
+      <div
+        ref="mobileBottomBlurRef"
+        class="md:hidden pointer-events-none fixed bottom-0 inset-x-0 h-24 z-10"
       >
         <div
           class="absolute inset-0"
@@ -229,20 +411,13 @@ function handleScroll(e) {
       </div>
     </div>
 
-    <div class="md:hidden flex justify-between pt-4">
+    <!-- Mobile back-to-gallery -->
+    <div class="md:hidden inline-block mt-auto">
       <router-link
-        v-if="prevCollection"
-        :to="`/gallery/${prevCollection.year}/${prevCollection.slug}`"
-        class="text-sm text-gray-600 dark:text-gray-400"
+        to="/gallery"
+        class="link-underline text-blueish dark:text-secondary hover:text-magenta dark:hover:text-tertiary text-sm"
       >
-        &larr; Prev
-      </router-link>
-      <router-link
-        v-if="nextCollection"
-        :to="`/gallery/${nextCollection.year}/${nextCollection.slug}`"
-        class="text-sm text-gray-600 dark:text-gray-400"
-      >
-        Next &rarr;
+        Back to Gallery
       </router-link>
     </div>
   </div>
@@ -254,7 +429,7 @@ function handleScroll(e) {
     Collection not found.
   </p>
 
-  <CursorTooltip ref="tooltip" :bordered="false" />
+  <CursorTooltip ref="tooltip" :bordered="false" :icon="false" />
 </template>
 
 <style scoped>

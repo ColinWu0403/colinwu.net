@@ -1,3 +1,12 @@
+<script setup>
+import { useRoute } from "vue-router";
+import Navbar from "./components/Navbar.vue";
+import Footer from "./components/Footer.vue";
+import "@fortawesome/fontawesome-free/css/all.css";
+
+const route = useRoute();
+</script>
+
 <template>
   <div
     id="app"
@@ -8,15 +17,9 @@
     <main class="flex-grow">
       <router-view />
     </main>
-    <Footer />
+    <Footer v-if="!route.meta.hideFooter" />
   </div>
 </template>
-
-<script setup>
-import Navbar from "./components/Navbar.vue";
-import Footer from "./components/Footer.vue";
-import "@fortawesome/fontawesome-free/css/all.css";
-</script>
 
 <style>
 /* Global styles */

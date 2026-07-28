@@ -93,11 +93,9 @@ const routes = [
   },
   {
     path: "/gallery/:year/:slug",
-    name: "gallery-post",
+    name: "GalleryPost",
     component: GalleryPost,
-    meta: {
-      title: "Gallery",
-    },
+    meta: { title: "Gallery", hideFooter: true },
   },
   // {
   //   path: "/other",

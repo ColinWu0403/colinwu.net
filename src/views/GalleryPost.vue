@@ -1,6 +1,6 @@
 <!-- src/views/GalleryPost.vue -->
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
 import {
   findCollection,
@@ -11,6 +11,11 @@ import CursorTooltip from "../components/CursorTooltip.vue";
 
 const route = useRoute();
 const tooltip = ref(null);
+const loaded = reactive({});
+
+function markLoaded(url) {
+  loaded[url] = true;
+}
 
 const collection = computed(() =>
   findCollection(route.params.year, route.params.slug),
@@ -85,22 +90,22 @@ onBeforeUnmount(() => {
 <template>
   <div
     v-if="collection"
-    class="md:h-full md:overflow-hidden flex flex-col md:flex-row w-full px-6 md:pl-16 md:pr-8 py-6 md:py-8 gap-10"
+    class="md:h-full md:overflow-hidden flex flex-col md:flex-row w-full px-6 md:pl-16 md:pr-56 py-6 md:py-8 gap-10"
   >
     <!-- Left column -->
-    <div class="md:w-64 md:h-full flex-shrink-0 flex flex-col items-start">
+    <div class="md:w-72 md:h-full flex-shrink-0 flex flex-col items-start">
       <h1 class="text-3xl font-bold text-primary dark:text-white mb-2">
         {{ collection.title }}
       </h1>
       <p
         v-if="collection.description"
-        class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6"
+        class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6 md:mb-8"
       >
         {{ collection.description }}
       </p>
 
       <!-- Mobile -->
-      <div class="flex md:hidden items-center gap-4 mb-6 w-full">
+      <div class="flex md:hidden items-center gap-8 md:mb-6 w-full">
         <router-link
           v-if="prevCollection"
           :to="`/gallery/${prevCollection.year}/${prevCollection.slug}`"
@@ -118,20 +123,20 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Desktop prev/next -->
-      <div class="hidden md:flex md:flex-row items-center gap-4">
-        <router-link
-          v-if="prevCollection"
-          :to="`/gallery/${prevCollection.year}/${prevCollection.slug}`"
-          class="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-magenta dark:hover:text-tertiary transition"
-        >
-          <i class="fas fa-arrow-left text-xs"></i> Prev
-        </router-link>
+      <div class="hidden md:flex md:flex-row items-center gap-48">
         <router-link
           v-if="nextCollection"
           :to="`/gallery/${nextCollection.year}/${nextCollection.slug}`"
           class="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-magenta dark:hover:text-tertiary transition"
         >
-          Next <i class="fas fa-arrow-right text-xs"></i>
+          <i class="fas fa-arrow-left text-xs"></i> Next
+        </router-link>
+        <router-link
+          v-if="prevCollection"
+          :to="`/gallery/${prevCollection.year}/${prevCollection.slug}`"
+          class="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-magenta dark:hover:text-tertiary transition"
+        >
+          Prev <i class="fas fa-arrow-right text-xs"></i>
         </router-link>
       </div>
 
@@ -141,7 +146,7 @@ onBeforeUnmount(() => {
           to="/gallery"
           class="link-underline text-blueish dark:text-secondary hover:text-magenta dark:hover:text-tertiary text-sm"
         >
-          Back to Gallery
+          &larr; Back to Gallery
         </router-link>
       </div>
     </div>
@@ -280,15 +285,22 @@ onBeforeUnmount(() => {
           @mousemove="(e) => tooltip.move(e)"
           @mouseleave="() => tooltip.hide()"
         >
+          <!-- Loading Skeleton -->
+          <div
+            v-if="!loaded[photo.url]"
+            class="aspect-[3/4] animate-pulse bg-slate/50 dark:bg-darker_slate"
+          ></div>
           <img
             :src="imageUrl(photo, 1100, 90)"
             :alt="photo.caption"
             loading="lazy"
-            class="w-full"
+            @load="markLoaded(photo.url)"
+            class="w-full transition-opacity duration-500"
+            :class="
+              loaded[photo.url] ? 'opacity-100' : 'opacity-0 absolute inset-0'
+            "
           />
-          <div
-            class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500"
-          ></div>
+          <div class="absolute inset-0"></div>
         </div>
       </div>
 
@@ -417,7 +429,7 @@ onBeforeUnmount(() => {
         to="/gallery"
         class="link-underline text-blueish dark:text-secondary hover:text-magenta dark:hover:text-tertiary text-sm"
       >
-        Back to Gallery
+        &larr; Back to Gallery
       </router-link>
     </div>
   </div>

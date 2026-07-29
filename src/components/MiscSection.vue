@@ -15,7 +15,7 @@ const items = [
   },
   {
     emoji: "📷",
-    html: 'Exploring the world; my <a href="/gallery" target="_blank" class="text-blueish link-underline dark:text-secondary hover:text-magenta dark:hover:text-tertiary transition">gallery</a>.',
+    html: 'Exploring the world; my <a href="/gallery" class="text-blueish link-underline dark:text-secondary hover:text-magenta dark:hover:text-tertiary transition">gallery</a>.',
   },
 ];
 </script>

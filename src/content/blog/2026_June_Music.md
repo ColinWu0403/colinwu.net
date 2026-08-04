@@ -1,6 +1,6 @@
 ---
 title: "Monthly Music Review Vol. I"
-description: "What I listened to in June 2026"
+description: "June 2026"
 date: 2026-07-02
 ---
 

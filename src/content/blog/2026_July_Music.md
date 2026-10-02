@@ -93,3 +93,5 @@ The drums on this are awesome
 </a>
 
 The 90s were really the best era for music
+
+<a href="/blog/2026_June_Music" rel="noopener noreferrer">&larr; Previous Month Review</a>

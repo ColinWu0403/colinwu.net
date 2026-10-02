@@ -79,3 +79,5 @@ What an underrated band
 </a>
 
 Recession pop is coming back in 2026 (classic)
+
+<a href="/blog/2026_July_Music" rel="noopener noreferrer">&larr; Previous Month Review</a>

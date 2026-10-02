@@ -50,7 +50,7 @@
                   Dept. of Computer Science & Engineering
                 </p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                  STMI Lab w/ Prof. Bobak Mortazavi
+                  HAIDI Lab w/ Prof. Yasaman Sefidgar
                 </p>
               </div>
             </div>

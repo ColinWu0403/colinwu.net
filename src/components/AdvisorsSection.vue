@@ -2,9 +2,9 @@
 <script setup>
 const people = [
   {
-    name: "Prof. Bobak Mortazavi",
+    name: "Prof. Yasaman Sefidgar",
     role: "Texas A&M Univeristy",
-    url: "https://stmilab.github.io",
+    url: "https://yasamansefidgar.com/",
   },
   {
     name: "Prof. Tianyi Zhang",
